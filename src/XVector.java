@@ -1,24 +1,88 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
+
 public class XVector {
+    private List <Double> vector;
 
-    private Vector<Double> vector;
+    public XVector(){
+        vector = new ArrayList<>();
+        for ( int i = 0; i < 19; ++i){
+        vector.add(0.0);
+        }
+    }
 
-    public Double getFi1 () {return vector.get(0);}
-    public Double getFi2 () {return vector.get(1);}
-    public Double getFi3 () {return vector.get(2);}
-    public Double getFi4 () {return vector.get(3);}
-    public Double getFi5 () {return vector.get(4);}
-    public Double getFi6 () {return vector.get(5);}
-    public Double getIE1 () {return vector.get(6);}
-    public Double getIE2 () {return vector.get(7);}
+    public XVector(Vector<Double> xvector){
+        vector = new ArrayList<>();
+        for ( int i = 0; i < xvector.size(); ++i){
+            vector.add(xvector.get(i));
+        }
+    }
 
+    public Double dUc4dt() {return vector.get(0);}
+    public Double dIl3dt() {return vector.get(1);}
+    public Double dUcddt() {return vector.get(2);}
+    public Double Ul3() {return vector.get(3);}
+    public Double Ury() {return vector.get(4);}
+    public Double Uid() {return vector.get(5);}
+    public Double Urd() {return vector.get(6);}
+    public Double Ie() {return vector.get(7);}
+    public Double Ic4() {return vector.get(8);}
+    public Double Icd() {return vector.get(9);}
+    public Double Ir4() {return vector.get(10);}
+    public Double Il3() {return vector.get(11);}
+    public Double Iry() {return vector.get(12);}
+    public Double Iid() {return vector.get(13);}
+    public Double Ird() {return vector.get(14);}
+    public Double Ue() {return vector.get(15);}
+    public Double Uc4() {return vector.get(16);}
+    public Double Ucd() {return vector.get(17);}
+    public Double Ur4() {return vector.get(18);}
 
+    public Double getDeltaU() {return Ury();}
 
+    public get(int i){ return
+    }
 
+    public XVector AddXVector(XVector vector){
+        Double addList = vector.
+
+    }
 
 
 }
+
+
+//public class XVector {
+//    private List <Double> vector;
+//
+//    public XVector(){
+//        vector = new ArrayList<>();
+//        for ( int i = 0; i < 19; ++i){
+//            vector.add(0.0);
+//        }
+//    }
+//
+//    public XVector(Vector<Double> xvector){
+//        vector = new ArrayList<>();
+//        for ( int i = 0; i < xvector.size(); ++i){
+//            vector.add(xvector.get(i));
+//        }
+//    }
+//
+//    public Double Fi1 () {return vector.get(0);}
+//    public Double Fi2 () {return vector.get(1);}
+//    public Double Fi3 () {return vector.get(2);}
+//    public Double Fi4 () {return vector.get(3);}
+//    public Double Fi5 () {return vector.get(4);}
+//    public Double Fi6 () {return vector.get(5);}
+//    public Double IE1 () {return vector.get(6);}
+//    public Double IE2 () {return vector.get(7);}
+//
+//    public Double getDeltaU() {return Fi2() - Fi4();}
+//
+//}
 
 
 /**
