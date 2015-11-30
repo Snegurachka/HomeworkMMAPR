@@ -1,8 +1,7 @@
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 /**
@@ -22,7 +21,34 @@ public class GnuPlot {
     private List<Double> resultsTime;
     private Settings settings;
 
-    public void printTiFile(String fileName, Function<XVector, Double> f) throws Exception {
+    public GnuPlot(Solver solver) {
+        this.resultsXVector = solver.getResultXVector();
+        this.resultsTime = solver.getResultsTime();
+        this.settings = solver.getSettings();
+    }
+
+    public void printAll() {
+        try {
+            printToFile(Il3, (XVector x) -> x.Il3());
+            printToFile(Ie, (XVector x) -> x.Ie());
+            printToFile(Ue, (XVector x) -> x.Ue());
+            printToFile(Ur4, (XVector x) -> x.Ur4());
+            printToFile(Uc4, (XVector x) -> x.Uc4() * 10 / 0.3);
+            List<String> I = new ArrayList<>();
+            I.add(Il3);
+            I.add(Ie);
+            List<String> U = new ArrayList<>();
+            U.add(Ur4);
+            U.add(Uc4);
+            U.add(Ue);
+            createGnuplotScript("I_result.script", I, "I, A", "Time, s");
+            createGnuplotScript("U_result.script", U, "U, V", "Time, s");
+        } catch (Exception e) {
+            System.out.println("Error While printing to files");
+        }
+    }
+
+    public void printToFile(String fileName, Function<XVector, Double> f) throws Exception {
         PrintWriter out = new PrintWriter(directory + fileName);
         Double max = f.apply(resultsXVector.get(0));
         Double min = f.apply(resultsXVector.get(0));
@@ -43,9 +69,16 @@ public class GnuPlot {
     }
 
     public void createGnuplotScript(String fileName, List<String> graph, String YTitle, String XTitle) throws Exception{
-        val (a, b) = maxMinValues.filterKeys((a: String) => graph.contains(a)).values.unzip
-        val max = a.max
-        val min = b.min;
+        double max = maxValues.get(graph.get(0));
+        double min = minValues.get(graph.get(0));
+        for (int i = 1; i < graph.size(); ++i) {
+            double maxTemp = maxValues.get(graph.get(i));
+            double minTemp = minValues.get(graph.get(i));
+            if (maxTemp > max)
+                max = maxTemp;
+            if (minTemp < min)
+                min = minTemp;
+        }
 
         PrintWriter out = new PrintWriter(directory + fileName);
         String scriptCode = "set terminal x11 size 1360, 700\n" +
@@ -65,5 +98,4 @@ public class GnuPlot {
         out.print(scriptCode);
         out.close();
     }
-
 }

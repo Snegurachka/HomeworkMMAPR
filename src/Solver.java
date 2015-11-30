@@ -6,15 +6,15 @@ import java.util.List;
  */
 public class Solver {
 
-    Settings settings = new Settings();
-    MathModel model = new MathModel(settings);
+    private Settings settings = new Settings();
+    private MathModel model = new MathModel(settings);
 
-    protected Double time = 0.0;
-    protected Double dt = settings.startDt();
-    protected Double lastdt = dt;
+    private Double time = 0.0;
+    private Double dt = settings.startDt();
+    private Double lastdt = dt;
 
-    protected List<XVector> resultXVector = new ArrayList<>();
-    protected List<Double> resultsTime = new ArrayList<>();
+    private List<XVector> resultXVector = new ArrayList<>();
+    private List<Double> resultsTime = new ArrayList<>();
 
     public Solver() {
         resultXVector.add(new XVector());
@@ -97,5 +97,17 @@ public class Solver {
                 return true;
             }
         }
+    }
+
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public List<XVector> getResultXVector() {
+        return resultXVector;
+    }
+
+    public List<Double> getResultsTime() {
+        return resultsTime;
     }
 }
