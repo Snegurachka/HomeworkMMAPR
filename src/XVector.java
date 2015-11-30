@@ -7,7 +7,7 @@ public class XVector {
 
     public XVector(){
         vector = new ArrayList<>();
-        for ( int i = 0; i < 19; ++i){
+        for (int i = 0; i < 19; ++i){
             vector.add(0.0);
         }
     }
@@ -58,7 +58,7 @@ public class XVector {
 
     public void addXVector(List<Double> list) {
         for (int i = 0; i < list.size(); ++i) {
-            list.set(i, list.get(i) + vector.get(i));
+            vector.set(i, list.get(i) + vector.get(i));
         }
     }
 

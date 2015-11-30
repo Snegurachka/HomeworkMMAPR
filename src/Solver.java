@@ -13,7 +13,6 @@ public class Solver {
     protected Double dt = settings.startDt();
     protected Double lastdt = dt;
 
-    protected Double timeResult = 0.0;
     protected List<XVector> resultXVector = new ArrayList<>();
     protected List<Double> resultsTime = new ArrayList<>();
 
@@ -25,7 +24,6 @@ public class Solver {
     public void solve(){
         int i = 0;
         while (time < settings.deadLine()){
-            timeResult += time;
             resultXVector.add(new Step(resultXVector.get(resultXVector.size() - 1)).calculate());
             resultsTime.add(time);
             time += dt;
@@ -42,9 +40,12 @@ public class Solver {
 
         private XVector previousStep;
         private Integer iterationNum = 0;
-        private XVector iterationApproximation = new XVector();
+        private XVector iterationApproximation;
 
-        public Step(XVector vector) { previousStep = vector; }
+        public Step(XVector vector) {
+            previousStep = vector;
+            iterationApproximation = new XVector(vector.getVector());
+        }
 
         public XVector calculate() {
             List<Double> B;
@@ -59,7 +60,7 @@ public class Solver {
 
         private Boolean chekIfEnd(List<Double> delta) {
             Boolean result = true;
-            for (int i = 0; i < delta.size(); ++i) {
+            for (int i = 0; i < delta.size() && result; ++i) {
                 if (Math.abs(delta.get(i)) >= 0.001) {
                     result = false;
                 }
