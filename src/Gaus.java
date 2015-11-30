@@ -1,6 +1,3 @@
-/**
- * Created by elena on 28.11.15.
- */
 import java.util.List;
 
 /**
@@ -16,8 +13,8 @@ public class Gaus {
             for (int j = i + 1; j < AMatrix.size(); j++) {
                 BMatrix.set(j,
                         BMatrix.get(j) -
-                                BMatrix.get(i) *
-                                        AMatrix.get(j).get(i));
+                        BMatrix.get(i) *
+                        AMatrix.get(j).get(i));
                 differ(AMatrix.get(i), AMatrix.get(j), i);
             }
         }

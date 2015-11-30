@@ -28,7 +28,7 @@ public class Settings {
 
     public Settings(){
         c4 = Math.pow(10,-6);
-        l3 = 0.003;
+        l3 = 0.001;
         r4 = 1000.0;
         diod = new Diod(Math.pow(10 ,6), 2 * Math.pow(10, -12), 20.0, Math.pow(10, -12), 0.026);
         eds = new Eds(2 * Math.PI * 10000, 10.0);

@@ -1,11 +1,11 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Created by elena on 28.11.15.
  */
 public class Solver {
+
     Settings settings = new Settings();
     MathModel model = new MathModel(settings);
 
@@ -14,22 +14,20 @@ public class Solver {
     protected Double lastdt = dt;
 
     protected Double timeResult = 0.0;
-    protected XVector vectorResult = new XVector();
-    protected Double dtResult = dt;
+    protected List<XVector> resultXVector = new ArrayList<>();
+    protected List<Double> resultsTime = new ArrayList<>();
 
-    public Double getTimeResult() { return timeResult;}
-    public XVector getVectorResult() { return vectorResult;}
-    public Double getDtResult() { return dtResult;}
-
+    public Solver() {
+        resultXVector.add(new XVector());
+        resultsTime.add(0.0);
+    }
 
     public void solve(){
-
-
         int i = 0;
         while (time < settings.deadLine()){
             timeResult += time;
-            vectorResult = new Step(getVectorResult()).calculate();
-            dtResult += dt;
+            resultXVector.add(new Step(resultXVector.get(resultXVector.size() - 1)).calculate());
+            resultsTime.add(time);
             time += dt;
             lastdt = dt;
             i += 1;
@@ -43,28 +41,21 @@ public class Solver {
     private class Step {
 
         private XVector previousStep;
-
-        public Step(XVector vector){ previousStep = vector;}
         private Integer iterationNum = 0;
+        private XVector iterationApproximation = new XVector();
 
-        //  private int getIterationNum() { return 0;}
-        XVector iterationApproximation = new XVector();
+        public Step(XVector vector) { previousStep = vector; }
 
         public XVector calculate() {
-            List<Double> B = new ArrayList<>();
+            List<Double> B;
             do {
-            List <List<Double>> A = model.getAMatrix(dt, iterationApproximation.getDeltaU());
-            B = model.getBMatrix(iterationApproximation, previousStep, time, dt);
-            Gaus.solve(A, B);
-            for (int i = 0; i < B.size(); ++i){
-                iterationApproximation. = iterationApproximation + B;
-
-            }
-        } while (!chekIfEnd(B));
+                List <List<Double>> A = model.getAMatrix(dt, iterationApproximation.getDeltaU());
+                B = model.getBMatrix(iterationApproximation, previousStep, time, dt);
+                Gaus.solve(A, B);
+                iterationApproximation.addXVector(B);
+            } while (!chekIfEnd(B));
             return iterationApproximation;
-
         }
-
 
         private Boolean chekIfEnd(List<Double> delta) {
             Boolean result = true;
@@ -72,102 +63,38 @@ public class Solver {
                 if (Math.abs(delta.get(i)) >= 0.001) {
                     result = false;
                 }
-                if (!result) {
-                    if (iterationNum > 6) {
-                        dt /= 2;
-                        System.out.println(dt);
-                        iterationApproximation = new XVector();
-                    }
+            }
+            if (!result) {
+                if (iterationNum > 6) {
+                    dt /= 2;
+                    System.out.println(dt);
+                    iterationApproximation = new XVector(previousStep.getVector());
+                    iterationNum = 0;
+                } else {
+                    iterationNum += 1;
+                }
+            } else {
+                if (resultXVector.size() > 2) {
+                    result = analyzeDeviation(new XVector(delta));
                 }
             }
-        return result;
+            return result;
         }
 
         private Boolean analyzeDeviation(XVector xVector) {
-            return true;
+            double fprev = resultXVector.get(resultXVector.size() - 2).Ue();
+            double flast = resultXVector.get(resultXVector.size() - 1).Ue();
+            double fcur = settings.eds().E(time + dt);
+            double epsilon = Math.abs((dt / (dt + lastdt)) * (fcur - flast - (dt / lastdt) * (flast - fprev)));
+            if (epsilon > settings.higtLevel()) {
+                dt /= 2;
+                return false;
+            } else {
+                if (epsilon < settings.lowLewel() && dt < 0.0000001) {
+                    dt *= 2;
+                }
+                return true;
+            }
         }
     }
-
 }
-
-
-//class Solver {
-//    val settings = new Settings
-//    val model = new MathModel(settings)
-//
-//    protected var time = 0.0
-//    protected var dt = settings.startDt
-//    protected var lastdt = dt
-//
-//    protected var resultSolution = ArrayBuffer[(Double, XVector, Double)]((0.0, new XVector, dt))
-//    def result = resultSolution
-//
-//    def solve(): Unit = {
-//        var i = 0
-//        while (time < settings.deadline) {
-//            resultSolution += ((time, new Step(resultSolution.last._2).calculate, dt))
-//            time += dt
-//            lastdt = dt
-//            i += 1
-//            if (i % 100000 == 0) {
-//                println("i = " + i)
-//                println("Time = " + time)
-//            }
-//        }
-//    }
-//
-//    class Step (private val previousStep: XVector){
-//        private var iterationNum = 0
-//        private var iterationApproximation = new XVector(new util.ArrayList(previousStep.list))
-//
-//        def calculate = {
-//                var B: java.util.List[java.lang.Double] = new util.ArrayList[lang.Double]()
-//        // iterations
-//        do {
-//            val A = model.getAMatrix(dt, iterationApproximation.getDeltaU)
-//            B = model.getBMatrix(iterationApproximation, previousStep, time, dt)
-//
-//            Gaus.solve(A, B)
-//            iterationApproximation += B
-//        } while (!checkIfEnd(B))
-//        iterationApproximation
-//    }
-//
-//    private def checkIfEnd(delta: java.util.List[java.lang.Double]): Boolean = {
-//        var result = true
-//        for (i <- 0 until delta.size() if result)
-//        if (math.abs(delta.get(i)) >= 0.001)
-//            result = false
-//        if (!result) {
-//            if (iterationNum > 6) {
-//                dt /= 2
-//                println(dt)
-//                iterationApproximation = new XVector(new util.ArrayList(previousStep.list))
-//                iterationNum = 0
-//            } else {
-//                iterationNum += 1
-//            }
-//        } else {
-//            if (resultSolution.size > 2)
-//                result = analyzeDeviation(new XVector(delta))
-//        }
-//        result
-//    }
-//
-//    private def analyzeDeviation(xVector: XVector): Boolean = {
-//        val fprev = resultSolution(resultSolution.length - 2)._2.Ue()
-//        val flast = resultSolution(resultSolution.length - 1)._2.Ue()
-//        val fcur = settings.eds.E(time + dt)
-//        val epsilon = math.abs((dt / (dt + lastdt)) * (fcur - flast - (dt / lastdt) * (flast - fprev)))
-//        if (epsilon > settings.highLevel) {
-//            dt /= 2
-//            false
-//        } else {
-//            if (epsilon < settings.lowLevel && dt < 0.0000001) {
-//                dt *= 2
-//            }
-//            true
-//        }
-//    }
-//}
-//}
