@@ -25,8 +25,8 @@ public class Solver {
         int i = 0;
         while (time < settings.deadLine()){
             resultXVector.add(new Step(resultXVector.get(resultXVector.size() - 1)).calculate());
-            resultsTime.add(time);
             time += dt;
+            resultsTime.add(time);
             lastdt = dt;
             i += 1;
             if (i % 100000 == 0){
