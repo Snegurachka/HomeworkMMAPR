@@ -12,13 +12,16 @@ public class Solver {
     private Double time = 0.0;
     private Double dt = settings.startDt();
     private Double lastdt = dt;
+    private Double IL = 0.0;
 
     private List<XVector> resultXVector = new ArrayList<>();
     private List<Double> resultsTime = new ArrayList<>();
+    private  List<Double> resultIl = new ArrayList<>();
 
     public Solver() {
         resultXVector.add(new XVector());
         resultsTime.add(0.0);
+        resultIl.add(0.0);
     }
 
     public void solve(){
@@ -27,8 +30,11 @@ public class Solver {
             resultXVector.add(new Step(resultXVector.get(resultXVector.size() - 1)).calculate());
             time += dt;
             resultsTime.add(time);
-            lastdt = dt;
             i += 1;
+            IL += dt / settings.l() * (resultXVector.get(i).Fi5() - resultXVector.get(i).Fi6());
+            resultIl.add(IL);
+            lastdt = dt;
+
             if (i % 100000 == 0){
                 System.out.println("i = " + i);
                 System.out.println("Time = " + time);
@@ -51,7 +57,7 @@ public class Solver {
             List<Double> B;
             do {
                 List <List<Double>> A = model.getAMatrix(dt, iterationApproximation.getDeltaU());
-                B = model.getBMatrix(iterationApproximation, previousStep, time, dt);
+                B = model.getBMatrix(iterationApproximation, previousStep, time, dt, resultIl.get(resultIl.size() - 1));
                 Gaus.solve(A, B);
                 iterationApproximation.addXVector(B);
             } while (!chekIfEnd(B));
@@ -110,4 +116,6 @@ public class Solver {
     public List<Double> getResultsTime() {
         return resultsTime;
     }
+
+    public List<Double> getResultIl() { return resultIl; }
 }

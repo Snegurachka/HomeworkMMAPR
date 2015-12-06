@@ -11,13 +11,12 @@ public class GnuPlot {
     private String directory = "out/";
     private HashMap<String, Double> maxValues = new HashMap<String, Double>();
     private HashMap<String, Double> minValues = new HashMap<String, Double>();
-    private String Il3 = "Il3";
-    private String Ie = "Ie";
-    private String Ue = "Ue";
-    private String Ur4 = "Ur4";
-    private String Uc4 = "Uc4";
+    private String Fi2 = "Fi2";
+    private String Fi6 = "Fi6";
+    private String IL = "IL";
 
     private List<XVector> resultsXVector;
+    private List<Double> resultIL;
     private List<Double> resultsTime;
     private Settings settings;
 
@@ -25,30 +24,48 @@ public class GnuPlot {
         this.resultsXVector = solver.getResultXVector();
         this.resultsTime = solver.getResultsTime();
         this.settings = solver.getSettings();
+        this.resultIL = solver.getResultIl();
     }
 
     public void printAll() {
         try {
-            printToFile(Il3, (XVector x) -> x.Il3());
-            printToFile(Ie, (XVector x) -> x.Ie());
-            printToFile(Ue, (XVector x) -> x.Ue());
-            printToFile(Ur4, (XVector x) -> x.Ur4());
-            printToFile(Uc4, (XVector x) -> x.Uc4() * 10 / 0.3);
+            printToFile(Fi2, (XVector x) -> x.Fi2());
+            printToFile(Fi6, (XVector x) -> x.Fi6());
+            List<String> Fi = new ArrayList<>();
+            Fi.add(Fi2);
+            Fi.add(Fi6);
+            createGnuplotScript("Fi_result.script", Fi, "U, V", "Time, s");
+            printToFile2(IL, resultIL);
             List<String> I = new ArrayList<>();
-            I.add(Il3);
-            I.add(Ie);
-            List<String> U = new ArrayList<>();
-            U.add(Ur4);
-            U.add(Uc4);
-            U.add(Ue);
+            I.add(IL);
             createGnuplotScript("I_result.script", I, "I, A", "Time, s");
-            createGnuplotScript("U_result.script", U, "U, V", "Time, s");
+
         } catch (Exception e) {
             System.out.println("Error While printing to files");
         }
     }
 
-    public void printToFile(String fileName, Function<XVector, Double> f) throws Exception {
+    public void printToFile2(String fileName, List<Double> f) throws Exception {
+        PrintWriter out = new PrintWriter(directory + fileName);
+        Double max = resultIL.get(0);
+        Double min = resultIL.get(0);
+        for (int i = 0; i < resultIL.size(); ++i) {
+            double time = resultsTime.get(i);
+            Double vector = resultIL.get(i);
+            out.println(time + " " + vector);
+            if (vector > max) {
+                max = vector;
+            }
+            if (vector < min) {
+                min = vector;
+            }
+        }
+        maxValues.put(fileName, max);
+        minValues.put(fileName, min);
+        out.close();
+    }
+
+    public void printToFile (String fileName, Function<XVector, Double> f) throws Exception {
         PrintWriter out = new PrintWriter(directory + fileName);
         Double max = f.apply(resultsXVector.get(0));
         Double min = f.apply(resultsXVector.get(0));
@@ -72,6 +89,7 @@ public class GnuPlot {
         double max = maxValues.get(graph.get(0));
         double min = minValues.get(graph.get(0));
         for (int i = 1; i < graph.size(); ++i) {
+
             double maxTemp = maxValues.get(graph.get(i));
             double minTemp = minValues.get(graph.get(i));
             if (maxTemp > max)
